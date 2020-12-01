@@ -5,7 +5,7 @@
  * @format
  * @flow strict-local
  */
-
+import 'react-native-gesture-handler';
 import React from 'react';
 import {
   SafeAreaView,
@@ -16,6 +16,12 @@ import {
   StatusBar,
 } from 'react-native';
 
+// Redux
+import {Provider} from 'react-redux';
+import store from './redux/store';
+
+
+
 import {
   Header,
   LearnMoreLinks,
@@ -23,15 +29,19 @@ import {
   DebugInstructions,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+
+import Navigation from './navigation/Navigation'
+
 const App = () => {
-  // console.log("Hey yo")
+  console.log("Hey yo")
   return (
     <>
-      {/* <StatusBar barStyle="dark-content" /> */}
-      {/* <Navigation /> */}
-      <View style={styles.container}>
-        <Text>Hey, it's working! </Text>
-      </View>
+      {/* <StatusBar barStyle="dark-content" />
+      <Navigation /> */}
+      <Provider store={store}>
+        <StatusBar barStyle="dark-content" />
+        <Navigation />
+    </Provider>
       
       
     </>
