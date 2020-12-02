@@ -1,17 +1,47 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, Image , SafeAreaView} from 'react-native';
+import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateIDs } from '../redux/features/usersSlice'
+import { updateMyProfile } from '../redux/features/usersSlice'
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Formik } from 'formik';
+import * as yup from 'yup';
 
-function setIDOf (dispatch) {
-    dispatch(updateIDs('1234'))
+
+const ReviewSignUpSchema = yup.object({
+    firstname: yup
+      .string()
+      .min(2, "Must be at least 2 characters")
+      .max(30, "Must be at most 30 characters")
+      .required("First name is a required field"),
     
-}
+    lastname: yup
+      .string()
+      .min(2, "Must be at least 2 characters")
+      .max(30, "Must be at most 30 characters")
+      .required("Last name is a required field"),
+
+    email: yup
+      .string()
+      .min(1, "Must be at least 1 character")
+      .label('Email')
+      .email()
+      .required("Email is a required field"),
+
+    password: yup
+      .string()
+      .min(6, "Must be at least 6 characters")
+      .label('Password')
+      .required("Password is a required field")
+    
+})
+// function setIDOf (dispatch) {
+//     dispatch(updateIDs('1234'))
+    
+// }
+
+
 
 const SignUpScreen = ({ navigation }) =>{
     const dispatch = useDispatch();
@@ -25,25 +55,55 @@ const SignUpScreen = ({ navigation }) =>{
                 </View>
                 <View>
                     <Formik
-                        initialValues={{ email: '', password: ''}}  
-                        onSubmit={(values) => {
-                            console.log(values);
+                        initialValues={{ firstname: '', lastname: '',email: '', password: ''}}  
+                        validationSchema={ReviewSignUpSchema}
+                        onSubmit={(values, actions) => {
+                            actions.resetForm();
+                            dispatch(updateMyProfile(values))
+                           
+                            console.log('clicked');
+
                         }}  
                     >
                         {(formikprops) => (
                             <View style={styles.formikContainer}>
+
+                                <TextInput 
+                                    style={styles.inputBox}
+                                    placeholder='First Name'
+                                    onChangeText={formikprops.handleChange('firstname')}
+                                    value={formikprops.values.firstname}
+                                    onBlur={formikprops.handleBlur('firstname')}
+                                ></TextInput>
+                                <Text style={styles.errorText}>{formikprops.touched.firstname && formikprops.errors.firstname}</Text>
+
+                                <TextInput 
+                                    style={styles.inputBox}
+                                    placeholder='Last Name'
+                                    onChangeText={formikprops.handleChange('lastname')}
+                                    value={formikprops.values.lastname}
+                                    onBlur={formikprops.handleBlur('lastname')}
+                                ></TextInput>
+                                <Text style={styles.errorText}>{formikprops.touched.lastname && formikprops.errors.lastname}</Text>
+
                                 <TextInput 
                                     style={styles.inputBox}
                                     placeholder='Email'
                                     onChangeText={formikprops.handleChange('email')}
                                     value={formikprops.values.email}
+                                    onBlur={formikprops.handleBlur('email')}
                                 ></TextInput>
+                                <Text style={styles.errorText}>{formikprops.touched.email && formikprops.errors.email}</Text>
+
                                 <TextInput 
                                     style={styles.inputBox}
                                     placeholder='Password'
                                     onChangeText={formikprops.handleChange('password')}
                                     value={formikprops.values.password}
+                                    onBlur={formikprops.handleBlur('password')}
                                 ></TextInput>
+                                <Text style={styles.errorText}>{formikprops.touched.password && formikprops.errors.password}</Text>
+
                                 <View style={styles.btnStyle}>
                                         <Button
                                         title='Sign up'
@@ -57,17 +117,7 @@ const SignUpScreen = ({ navigation }) =>{
                     </Formik>  
                      
                 </View>  
-                <View style={styles.footNote}> 
-                   <Text >Already have an account?</Text> 
-                    <TouchableOpacity
-                        onPress={() => {
-                            console.log("clicked!")
-                            navigation.navigate('Login');
-                          }}
-                    > 
-                        <Text > Sign in!</Text>
-                    </TouchableOpacity>
-                </View> 
+                
                  
             </View>    
         </SafeAreaView>
@@ -112,7 +162,9 @@ const styles = StyleSheet.create({
         
     },
     btn: {
-        backgroundColor: colors.bloodred
+        backgroundColor: colors.bloodred,
+        width: '100%',
+        borderRadius: 100
     },
     fontStyle: {
         fontSize: 60,
@@ -130,16 +182,14 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'center'
     },
-    footNote: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        padding: 10
+    
+    errorText: {
+        color: colors.bloodred,
+        marginBottom: 10,
+        marginTop: 6,
+        textAlign: 'center'
         
-    },
-    textNote: {
-        color: colors.darkgray
-    },
+    }
 
     
 })
