@@ -1,0 +1,9 @@
+<div>
+    {% for item in items %}
+        <div class="petname">
+            <a href="{% url 'itemsList' item.id %}">
+                <h3>{{ item.name|capfirst }}</h3>
+            </a>  
+        </div>
+    {% endfor %}
+</div>
