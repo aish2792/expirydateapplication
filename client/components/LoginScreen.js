@@ -45,7 +45,7 @@ function LoginScreen({ navigation }) {
                         onSubmit={(values, actions) => {
                             actions.resetForm();
                             dispatch(updateCredentials(values))
-                             navigation.navigate('Profile');
+                             navigation.navigate('ItemList');
                             console.log(values);
                         }}  
                     >

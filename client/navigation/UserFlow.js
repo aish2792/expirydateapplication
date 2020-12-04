@@ -5,6 +5,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from '../components/LoginScreen';
 import SignUpScreen from '../components/SignUpScreen';
 import ProfileScreen from '../components/ProfileScreen';
+import ItemListScreen from '../components/ItemListScreen';
+import AddItemsScreen from '../components/AddItemsScreen';
+
 
 const Stack = createStackNavigator();
 
@@ -15,6 +18,8 @@ const UserFlow = () => {
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="Register" component={SignUpScreen} />
+            <Stack.Screen name="ItemList" component={ItemListScreen} />
+            <Stack.Screen name="AddItems" component={AddItemsScreen}/>
             
         </Stack.Navigator>
     )

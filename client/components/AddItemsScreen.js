@@ -1,39 +1,38 @@
-import React from 'react';
-import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity, FlatList} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateMyProfile } from '../redux/features/usersSlice'
+import { updateIDs, updateCredentials } from '../redux/features/usersSlice'
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import axios from 'axios';
+import { Card } from 'react-native-paper';
+
 
 
 const ReviewSignUpSchema = yup.object({
-    firstname: yup
+    itemName: yup
       .string()
       .min(2, "Must be at least 2 characters")
       .max(30, "Must be at most 30 characters")
-      .required("First name is a required field"),
+      .required("Item name is a required field"),
     
-    lastname: yup
+    itemType: yup
       .string()
       .min(2, "Must be at least 2 characters")
       .max(30, "Must be at most 30 characters")
-      .required("Last name is a required field"),
+      .required("Item type is a required field"),
 
-    email: yup
-      .string()
-      .min(1, "Must be at least 1 character")
-      .label('Email')
-      .email()
-      .required("Email is a required field"),
+    expiryDate: yup
+      .date()
+      .label('Expiry Date')
+      .required("Expiry Date is a required field"),
 
-    password: yup
-      .string()
-      .min(6, "Must be at least 6 characters")
-      .label('Password')
-      .required("Password is a required field")
+    price: yup
+      .number()
+      .label('Price')
     
 })
 // function setIDOf (dispatch) {
@@ -43,26 +42,22 @@ const ReviewSignUpSchema = yup.object({
 
 
 
-const SignUpScreen = ({ navigation }) =>{
+const AddItemsScreen = ({ navigation }) =>{
     const dispatch = useDispatch();
     // const {navigate} = navigation;
     
     return (
         <SafeAreaView>
              <View style={styles.container}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.fontStyle} >unXpired</Text>
-                </View>
                 <View>
                     <Formik
-                        initialValues={{ firstname: '', lastname: '',email: '', password: ''}}  
+                        initialValues={{ itemName: '', itemType: '',expiryDate: '', price: ''}}  
                         validationSchema={ReviewSignUpSchema}
                         onSubmit={(values, actions) => {
                             actions.resetForm();
-                            dispatch(updateMyProfile(values))
-                            navigation.navigate('Profile', values)
+                            // dispatch(updateMyProfile(values))
                            
-                            console.log('clicked');
+                            console.log(values);
 
                         }}  
                     >
@@ -71,43 +66,43 @@ const SignUpScreen = ({ navigation }) =>{
 
                                 <TextInput 
                                     style={styles.inputBox}
-                                    placeholder='First Name'
-                                    onChangeText={formikprops.handleChange('firstname')}
-                                    value={formikprops.values.firstname}
-                                    onBlur={formikprops.handleBlur('firstname')}
+                                    placeholder='Item Name'
+                                    onChangeText={formikprops.handleChange('itemName')}
+                                    value={formikprops.values.itemName}
+                                    onBlur={formikprops.handleBlur('itemName')}
                                 ></TextInput>
-                                <Text style={styles.errorText}>{formikprops.touched.firstname && formikprops.errors.firstname}</Text>
+                                <Text style={styles.errorText}>{formikprops.touched.itemName && formikprops.errors.itemName}</Text>
 
                                 <TextInput 
                                     style={styles.inputBox}
-                                    placeholder='Last Name'
-                                    onChangeText={formikprops.handleChange('lastname')}
-                                    value={formikprops.values.lastname}
-                                    onBlur={formikprops.handleBlur('lastname')}
+                                    placeholder='Item Type'
+                                    onChangeText={formikprops.handleChange('itemType')}
+                                    value={formikprops.values.itemType}
+                                    onBlur={formikprops.handleBlur('itemType')}
                                 ></TextInput>
-                                <Text style={styles.errorText}>{formikprops.touched.lastname && formikprops.errors.lastname}</Text>
+                                <Text style={styles.errorText}>{formikprops.touched.itemType && formikprops.errors.itemType}</Text>
 
                                 <TextInput 
                                     style={styles.inputBox}
-                                    placeholder='Email'
-                                    onChangeText={formikprops.handleChange('email')}
-                                    value={formikprops.values.email}
-                                    onBlur={formikprops.handleBlur('email')}
+                                    placeholder='Expiry Date'
+                                    onChangeText={formikprops.handleChange('expiryDate')}
+                                    value={formikprops.values.expiryDate}
+                                    onBlur={formikprops.handleBlur('expiryDate')}
                                 ></TextInput>
-                                <Text style={styles.errorText}>{formikprops.touched.email && formikprops.errors.email}</Text>
+                                <Text style={styles.errorText}>{formikprops.touched.expiryDate && formikprops.errors.expiryDate}</Text>
 
                                 <TextInput 
                                     style={styles.inputBox}
-                                    placeholder='Password'
-                                    onChangeText={formikprops.handleChange('password')}
-                                    value={formikprops.values.password}
-                                    onBlur={formikprops.handleBlur('password')}
+                                    placeholder='Price'
+                                    onChangeText={formikprops.handleChange('price')}
+                                    value={formikprops.values.price}
+                                    onBlur={formikprops.handleBlur('price')}
                                 ></TextInput>
-                                <Text style={styles.errorText}>{formikprops.touched.password && formikprops.errors.password}</Text>
+                                <Text style={styles.errorText}>{formikprops.touched.price && formikprops.errors.price}</Text>
 
                                 <View style={styles.btnStyle}>
                                         <Button
-                                        title='Sign up'
+                                        title='Add Item'
                                         buttonStyle={styles.btn}
                                         onPress={formikprops.handleSubmit}
                                         />
@@ -195,4 +190,4 @@ const styles = StyleSheet.create({
     
 })
 
-export default SignUpScreen
+export default AddItemsScreen

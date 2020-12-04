@@ -20,6 +20,7 @@ from expirydate import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name='home'),
-    path('itemsList/<int:item_id>/', views.items_detail, name='itemsList'),
+    path('users', views.insert_newuser),
+    path('itemsList/<int:userId>/', views.items_detail, name='itemsList'),
 
 ]

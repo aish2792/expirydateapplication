@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { Dimensions } from "react-native";
 import { useSelector, useDispatch } from 'react-redux';
+import axios from '../navigation/axios';
 
 
-const ProfileScreen = ({ navigation }) =>{
+const ProfileScreen = ({ route, navigation }) =>{
     const dispatch = useDispatch();
+    const values = route.params
+
+    useEffect(() => {
+        
+        async function postData() {
+            const request = await axios
+            .post('users', {values})
+            .then((response) => {
+                console.log(response)
+
+            }
+            )
+            .catch(err=>err)
+
+        }
+        postData();
+        
+      }, []); 
 
     
     return (
@@ -27,24 +46,18 @@ const styles = StyleSheet.create({
     
     container: {
         display: 'flex',
-        flex: 2,
         flexDirection: 'column',
-        padding: 2,
-        backgroundColor: '#555555',
+        padding: 10,
+        backgroundColor: '#ffffff',
         height: Dimensions.get('window').height-110,
         borderRadius: 40,
         margin: 10,
         justifyContent: 'center',
+        // flex: 1
         // alignItems: 'center'
             
-    },
-    btmcontainer: {
-        display: 'flex',
-        flex: 1,
-        backgroundColor: '#555555',
-        flexDirection: 'column',
-
     }
+  
     
 })
 

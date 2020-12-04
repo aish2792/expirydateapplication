@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-
-
+import axios from 'axios';
 
 export const usersSlice = createSlice({
     name: 'users',
@@ -75,20 +74,52 @@ export const updateCredentials = (cred) => async (
         
     };
 
-export const updateMyProfile = (cred) => async (
+export const updateMyProfile = (cred) => (
     dispatch,
     getState,
     ) => {
-
-        const {email, password, firstname, lastname} = cred
+        // console.log(cred)
+        const {firstname, lastname, email, password} = cred
         // console.log(email)
         // console.log(password)
         const profile = {
             'firstname': firstname,
             'lastname': lastname,
-            'email': email 
+            'email': email,
+            'password':password
         }
-        dispatch(setMyProfile(profile))
+
+        console.log({profile})
+
+        // const profile_json = JSON.stringify(profile)  
+        // console.log("profile : ", profile_json) 
+        // const request =  axios
+        //     .post('users', {profile})
+        //     .then((response) => {
+        //         console.log(response)
+
+        //     }
+        //     )
+        //     .catch(err=>err)
+        // async function postData() {
+        //         const request = await axios
+        //         .post('users', {profile})
+        //         .then((response) => {
+        //             console.log(response)
+    
+        //         }
+        //         )
+        //         .catch(err=>err)
+    
+        //     }
+        //     postData();
+    
+            // console.log("message:",request.data)
+
+        // }
+        // postData();                               //update the database
+        dispatch(setMyProfile(profile)) //updates the state
+
         
         
 

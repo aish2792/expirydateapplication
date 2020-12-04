@@ -6,7 +6,7 @@ from .models import Users, Items
 # We need to register this class with the admin to it which model it is associated with
 @admin.register(Users)
 class UsersAdmin(admin.ModelAdmin):
-    list_display = ['firstName', 'lastName', 'userId', 'creationDate']
+    list_display = ['id', 'firstName', 'lastName', 'email', 'password']
 
 
 @admin.register(Items)
