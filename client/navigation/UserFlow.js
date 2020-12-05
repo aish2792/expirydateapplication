@@ -18,7 +18,7 @@ const UserFlow = () => {
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="Register" component={SignUpScreen} />
-            <Stack.Screen name="ItemList" component={ItemListScreen} />
+            <Stack.Screen name="ItemList" component={ItemListScreen} options={{ headerLeft: null }}/>
             <Stack.Screen name="AddItems" component={AddItemsScreen}/>
             
         </Stack.Navigator>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState }  from 'react';
 import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
@@ -7,6 +7,7 @@ import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import axios from '../navigation/axios';
 
 
 const ReviewSignUpSchema = yup.object({
@@ -45,7 +46,22 @@ const ReviewSignUpSchema = yup.object({
 
 const SignUpScreen = ({ navigation }) =>{
     const dispatch = useDispatch();
-    // const {navigate} = navigation;
+
+    useEffect(() => {
+        
+        async function fetchUsersData() {
+            const request = 
+            await axios
+            .get('listusers')
+            .then(({data}) => {
+                console.log("Data is : ",data)
+                dispatch(fetchUsers(data))
+            }).catch(err=>console.log(err))
+
+        }
+        fetchUsersData();
+        
+      }, ['listusers']); 
     
     return (
         <SafeAreaView>
@@ -62,7 +78,7 @@ const SignUpScreen = ({ navigation }) =>{
                             dispatch(updateMyProfile(values))
                             navigation.navigate('Profile', values)
                            
-                            console.log('clicked');
+                            console.log({values});
 
                         }}  
                     >

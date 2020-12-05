@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState }  from 'react';
 import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateIDs, updateCredentials } from '../redux/features/usersSlice'
+import { fetchUsers, updateCredentials } from '../redux/features/usersSlice'
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import axios from '../navigation/axios';
 
 
 const ReviewSignUpSchema = yup.object({
@@ -24,14 +25,47 @@ const ReviewSignUpSchema = yup.object({
 })
 
 
-// function setIDOf (dispatch) {
-//     dispatch(updateIDs('1234'))
-    
-// }
+
+
 
 function LoginScreen({ navigation }) {
     const dispatch = useDispatch();
-    
+    const [message, setMessage] = useState([])
+    const [validUser, setValidUser] = useState(false)
+
+    async function checkLogin(values) {
+        const request = await axios
+        .post('checklogin', {values})
+        .then(({data}) => {
+            setMessage(data)
+            console.log("data is : ", data['message'])
+            if (data['message'] === 'Success') {
+                setValidUser(true)
+                navigation.navigate('ItemList')
+            }
+            else {
+                setValidUser(false)
+            }  
+        }).catch(err=>console.log(err))
+    }
+
+    useEffect(() => {
+        
+        async function fetchUsersData() {
+            
+            const request = 
+            await axios
+            .get('listusers')
+            .then(({data}) => {
+                dispatch(fetchUsers(data))
+            }).catch(err=>console.log(err))
+
+        }
+        fetchUsersData();  
+      }, ['listusers']); 
+      
+    const msg = message['message']
+
     return (
         <SafeAreaView>
             <View style={styles.container}>
@@ -44,13 +78,14 @@ function LoginScreen({ navigation }) {
                         validationSchema={ReviewSignUpSchema}
                         onSubmit={(values, actions) => {
                             actions.resetForm();
-                            dispatch(updateCredentials(values))
-                             navigation.navigate('ItemList');
-                            console.log(values);
+                            checkLogin(values)
                         }}  
                     >
                         {(formikprops) => (
                             <View style={styles.formikContainer}>
+                                {
+                                    msg==='Password does not match' || msg==='failure' ? <Text style={styles.errorText}>{msg}</Text> : <Text></Text>       
+                                }
                                 <TextInput 
                                     style={styles.inputBox}
                                     placeholder='Email'
@@ -123,7 +158,7 @@ const styles = StyleSheet.create({
         // flex: 1,
         // justifyContent: 'flex-',
         // alignItems: 'flex-end'
-        // padding: 20
+        paddingTop: 50
     },
 
     btnStyle: {

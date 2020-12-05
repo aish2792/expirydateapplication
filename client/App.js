@@ -30,10 +30,13 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-import Navigation from './navigation/Navigation'
+import Navigation from './navigation/Navigation';
+
+
+
 
 const App = () => {
-  console.log("Hey yo")
+
   return (
     <>
       {/* <StatusBar barStyle="dark-content" />
@@ -41,6 +44,7 @@ const App = () => {
       <Provider store={store}>
         <StatusBar barStyle="dark-content" />
         <Navigation />
+  
     </Provider>
       
       

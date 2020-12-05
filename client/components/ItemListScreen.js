@@ -2,26 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity, FlatList} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateIDs, updateCredentials } from '../redux/features/usersSlice'
+import { fetchUsers, updateCredentials } from '../redux/features/usersSlice'
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
 import axios from '../navigation/axios';
 import { Card } from 'react-native-paper';
-
-
+import { Icon } from 'react-native-elements';
 
 
 function ItemListScreen({ navigation, fetchUrl }) {
     const dispatch = useDispatch();
     const [itemlist, setItemlist] = useState([])
 
+
+
+
     useEffect(() => {
         
         async function fetchData() {
             const request = await axios
-            .get('itemsList/1')
+            .get('itemsList')
             .then(({data}) => {
-                console.log(data)
+                // console.log(data)
                 setItemlist(data)
             })
 
@@ -29,20 +31,23 @@ function ItemListScreen({ navigation, fetchUrl }) {
         fetchData();
         
       }, []); 
+
+      
     
+      
     return (
         <SafeAreaView>
             <View style={styles.container}>
-            <View style={styles.btnStyle}>
+            {/* <View style={styles.btnStyle}>
                                     <Button
                                     title='Add item'
                                     buttonStyle={styles.btn}                                  
                                     onPress={() => navigation.navigate('AddItems')}
                                     />
-                                </View>
+                                </View> */}
                 <View style={styles.cardContainer}>
                     <FlatList
-                        keyExtractor={item => item.id}
+                        keyExtractor={item => item.id.toString()}
                         data={itemlist}
                         renderItem={({item}) => {
                         return (
@@ -58,7 +63,15 @@ function ItemListScreen({ navigation, fetchUrl }) {
                         
 
                     />
-                </View>  
+                </View> 
+                <View style={styles.iconStyle}>
+                <Icon
+                        name='plus-circle'
+                        type='font-awesome'
+                        color={colors.bloodred}
+                        size={50}
+                    />
+                </View> 
             </View>
         </SafeAreaView>
         
@@ -114,6 +127,9 @@ const styles = StyleSheet.create({
         // alignSelf: 'stretch',
         borderRadius: 100
         
+    },
+    iconStyle: {
+        padding: 20
     }
 })
 
