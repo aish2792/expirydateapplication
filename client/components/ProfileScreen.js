@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
-import { Button, Input } from 'react-native-elements';
 import { Dimensions } from "react-native";
 import { useSelector, useDispatch } from 'react-redux';
 import axios from '../navigation/axios';

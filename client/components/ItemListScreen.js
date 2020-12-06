@@ -1,76 +1,269 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity, FlatList} from 'react-native';
+import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity, FlatList, Modal} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUsers, updateCredentials } from '../redux/features/usersSlice'
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
+import { fetchUsers, updateID, updateMyProfile, updateMyItemsList } from '../redux/features/usersSlice'
 import axios from '../navigation/axios';
 import { Card } from 'react-native-paper';
 import { Icon } from 'react-native-elements';
+import AddItemsScreen from './AddItemsScreen';
 
 
 function ItemListScreen({ navigation, fetchUrl }) {
     const dispatch = useDispatch();
     const [itemlist, setItemlist] = useState([])
+    const [isExpiredClicked, setisExpiredClicked] = useState(false)
+    const [isAddClicked, setisAddClicked] = useState(false)
+    const [modalOpen, setModalOpen] = useState(false)
+    const users = useSelector(state => state.users)
 
 
+    async function fetchData() {
+        const request = await axios
+        .get('itemsList')
+        .then(({data}) => {
+            setItemlist(data)
+            dispatch(updateMyItemsList(data))
+        })
 
+    }
 
-    useEffect(() => {
+    
+    const handleIsExpired = () => {
+        setisExpiredClicked(!isExpiredClicked) 
+        // console.log("after: ", isExpiredClicked)
+        // setisAddClicked(false) 
+
         
-        async function fetchData() {
-            const request = await axios
-            .get('itemsList')
-            .then(({data}) => {
-                // console.log(data)
-                setItemlist(data)
-            })
-
         }
+
+    const handleIsAdd = () => {
+        
+        setisAddClicked(!isAddClicked) 
+        // setisExpiredClicked(false)
+        setModalOpen(true)
+        
+
+        // if(isAddClicked) {
+        //     navigation.navigate('AddItems')
+        // }
+        }
+    async function insertItemsData(values) {
+        const request = await axios
+        .post('insertItems', {values})
+        .then(({data}) => {
+            // console.log("data is : ",data)
+    
+        })
+    }
+
+    
+
+    const handleDone = () => {
+
+        insertItemsData(users['myItems']);
+        setModalOpen(false)
+        fetchData()
+    
+            
+        }
+    
+    useEffect(() => {      
         fetchData();
+        async function fetchUsersData() {
+            const request = 
+            await axios
+            .get('listusers')
+            .then(({data}) => {
+                // console.log("Data is : ",data)
+                dispatch(fetchUsers(data))
+            }).catch(err=>console.log(err))
+    
+        }
+        fetchUsersData();
+
+        async function fetchCurrentUsersData() {
+            const request = 
+            await axios
+            .get('fetchuser')
+            .then(({data}) => {
+                console.log("Data is : ",data)
+                dispatch(updateMyProfile(data[0]))
+                dispatch(updateID(data[0]))
+            }).catch(err=>console.log(err))
+    
+        }
+        fetchCurrentUsersData();
+
         
       }, []); 
 
-      
+    // useEffect(() => users['myItems'], itemlist
+    //     { 
+    //         if(isAddClicked) {
+    //             console.log("clicked")
+                
+    //         }
+    //         // fetchData()
+            
+    //     }, [itemlist])  
+
+
     
       
     return (
         <SafeAreaView>
             <View style={styles.container}>
-            {/* <View style={styles.btnStyle}>
-                                    <Button
-                                    title='Add item'
-                                    buttonStyle={styles.btn}                                  
-                                    onPress={() => navigation.navigate('AddItems')}
+                <Modal visible={modalOpen} animationType='slide'>
+                    <View style={styles.modalContainer}>
+                        <View style={styles.cross}>
+                            <TouchableOpacity
+                                    onPress={
+                                        () => setModalOpen(false)
+                                    }
+                                    >
+                                    <Icon
+                                        name='close'
+                                        type='font-awesome'
+                                        color={colors.black}
+                                        size={35}
+                                        style={{ }}
                                     />
-                                </View> */}
-                <View style={styles.cardContainer}>
-                    <FlatList
-                        keyExtractor={item => item.id.toString()}
-                        data={itemlist}
-                        renderItem={({item}) => {
-                        return (
-                            <Card style={styles.card}>
-                                <View style={styles.innerContainer}>
-                                    <Text style={styles.textStyle}>{item.name}</Text>
-                                    <Text style={styles.textStyle}>{item.expirationDate}</Text>
-                                </View>
-                            </Card>
-                                
-                            )
-                        }}
-                        
 
-                    />
+                            </TouchableOpacity>
+
+                        </View>
+                        <View style={styles.form}>
+                            <AddItemsScreen />
+                        </View>
+                        <Button
+                            title='Done'
+                            buttonStyle={styles.doneStyle}
+                            onPress={() => handleDone()}
+                            
+                            />
+     
+                    </View>
+
+                </Modal>
+
+                
+                <View style={styles.cardContainer}>
+                    {itemlist.length == 0 ? 
+                    <View style={styles.noItemsContainer}><Text style={styles.noItemsText} >No items found!</Text></View> :
+                    <FlatList
+                    keyExtractor={item => item.id.toString()}
+                    data={itemlist}
+                    renderItem={({item}) => {
+                    return (
+                        <Card style={styles.card}>
+                            <View style={{ margin: 10 }}>
+                                <View style={{ flexDirection: 'row' }}>
+                                <View style={{ flex: 2 }}>
+                                        <View style={styles.innerContainer}>
+                                                    <Text style={styles.textStyle}>{item.typeItem}</Text>
+                                                    <Text style={styles.innerTextStyle}>{item.name}</Text>
+                                               
+                                        </View>
+                                        <View style={styles.innerContainer}>
+                                                <Text style={styles.textStyle}>Expiry Date</Text>
+                                                <Text style={styles.innerTextStyle}>{item.expirationDate}</Text>
+                                               
+                                        </View>
+
+                                    </View>
+                                        
+                                    
+                                
+                                    <View style={{ flex: 0.5, justifyContent:"center", alignItems:'center' }}>
+                                        <TouchableOpacity
+                                            
+                                        >
+                                            <Icon
+                                                    name='trash'
+                                                    type='font-awesome'
+                                                    color={ isExpiredClicked? colors.silver : colors.black }
+                                                    size={35}
+
+                                            />
+
+                                        </TouchableOpacity>
+                                        
+                                    </View>
+
+                                </View>
+                                    
+
+
+                                </View>
+                                
+                            
+                            
+                        </Card>
+                            
+                        )
+                    }}
+                /> 
+                }    
                 </View> 
                 <View style={styles.iconStyle}>
-                <Icon
-                        name='plus-circle'
-                        type='font-awesome'
-                        color={colors.bloodred}
-                        size={50}
-                    />
+                    
+                    <View style={{ flexDirection: 'column'}}>
+                        <TouchableOpacity
+                            onPress={() => handleIsExpired()}
+                        >
+                            <Icon
+                                    name='history'
+                                    type='font-awesome'
+                                    color={ colors.black }
+                                    size={35}
+
+                                    />
+
+                        </TouchableOpacity>
+                            
+                        <Text style={{ color: colors.darkgray}}>Expired</Text>
+                    </View>  
+
+                    <View style={{ flexDirection: 'column'}}>
+                        <TouchableOpacity
+                            // style= { isExpiredClicked ? styles.expiredIconLiked : styles.interactionContainer } 
+                            onPress={
+                                () => handleIsAdd()
+            
+                            }
+
+                        >
+                            <Icon
+                                name='plus-circle'
+                                type='font-awesome'
+                                color={ isAddClicked ? colors.silver : colors.black }
+                                size={35}
+                                />
+
+                        </TouchableOpacity>
+                        
+                        <Text style={{ color: colors.darkgray}}>Add Items</Text>
+                    </View>  
+                        
+                    <View style={{ flexDirection: 'column'}}>
+                        <TouchableOpacity
+                            onPress={() => (navigation.navigate('Settings'))}
+                        >
+                            <Icon
+                                // name='power-off'
+                                name='cogs'
+                                type='font-awesome'
+                                color={colors.black}
+                                size={35}
+                                />
+                        </TouchableOpacity>
+                        
+                        <Text style={{ color: colors.darkgray}}>Settings</Text>
+                    </View>  
+
                 </View> 
             </View>
         </SafeAreaView>
@@ -93,6 +286,31 @@ const styles = StyleSheet.create({
         // alignItems: 'center'
             
     },
+    modalContainer: {
+        display: 'flex',
+        // flexDirection: 'column',
+        paddingTop: 50,
+        backgroundColor: colors.wildsand,
+        padding: 20,
+        // flex:1,
+        // height: Dimensions.get('window').height-110,
+        borderRadius: 40,
+        marginTop: 100,
+        margin: 10
+        // justifyContent: 'center',
+        // flex: 1
+        // alignItems: 'center'
+    },
+    cross: {
+        // flex: 1
+        // justifyContent: 'center',
+        alignItems: 'flex-end',
+        padding: 10
+    },
+    form: {
+        // flex: 1
+        justifyContent: 'flex-start'
+    },
     cardContainer: {
         flex: 1,
         padding: 5
@@ -103,15 +321,42 @@ const styles = StyleSheet.create({
         borderRadius: 100
     },
     innerContainer: {
-        flex: 1,
+        flex: 2,
         flexDirection: 'row',
         padding: 10,
         marginLeft: 20
     },
     textStyle: {
         flex: 1,
-        // fontSize: 15
+        fontSize: 17
     },
+    innerTextStyle: {
+        flex: 1,
+        fontSize: 17,
+        marginHorizontal: 5
+    },
+    noItemsContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 50
+    },
+    noItemsText: {
+        fontSize: 20,
+        color: colors.mandy,
+        fontWeight: 'bold',
+        
+        
+    },
+    doneStyle: {
+        backgroundColor: colors.bloodred,
+        borderRadius: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 55,
+        width: '70%',
+
+    },
+
     btnStyle: {
         flexDirection: 'row',
         justifyContent: 'center',
@@ -129,7 +374,11 @@ const styles = StyleSheet.create({
         
     },
     iconStyle: {
-        padding: 20
+        padding: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        backgroundColor: colors.wildsand,
+        borderRadius: 100
     }
 })
 

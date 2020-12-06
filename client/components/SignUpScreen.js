@@ -2,7 +2,7 @@ import React, { useEffect, useState }  from 'react';
 import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateMyProfile } from '../redux/features/usersSlice'
+import { fetchUsers, updateMyProfile, updateID } from '../redux/features/usersSlice'
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
 import { Formik } from 'formik';
@@ -37,16 +37,45 @@ const ReviewSignUpSchema = yup.object({
       .required("Password is a required field")
     
 })
-// function setIDOf (dispatch) {
-//     dispatch(updateIDs('1234'))
-    
-// }
-
-
 
 const SignUpScreen = ({ navigation }) =>{
     const dispatch = useDispatch();
+    const [message, setMessage] = useState([])
 
+    async function checkLogin(values) {
+        const request = await axios
+        .post('checksignup', {values})
+        .then(({data}) => {
+            console.log(data['message'])
+            // setMessage(data['message'])
+            if (data['message'] === 'User already exists!') {
+                setMessage(data['message'])
+            }
+            else {
+                dispatch(updateMyProfile(values))
+                sendUsersData(values)
+            }  
+        }).catch(err=>console.log(err))
+    }
+
+    // const msg = message['message']
+
+    async function sendUsersData(values) {
+        const request = 
+        await axios
+        .post('users', values)
+        .then(({data}) => {
+            // console.log("Data is : ",data)
+            dispatch(updateMyProfile(values))
+            dispatch(updateID(data))
+
+            navigation.navigate('ItemList')
+        }).catch(err=>console.log(err))
+
+    }
+    
+  
+    
     useEffect(() => {
         
         async function fetchUsersData() {
@@ -54,15 +83,16 @@ const SignUpScreen = ({ navigation }) =>{
             await axios
             .get('listusers')
             .then(({data}) => {
-                console.log("Data is : ",data)
+                // console.log("Data is : ",data)
                 dispatch(fetchUsers(data))
             }).catch(err=>console.log(err))
 
         }
         fetchUsersData();
         
-      }, ['listusers']); 
+      }, ['listusers', message]); 
     
+
     return (
         <SafeAreaView>
              <View style={styles.container}>
@@ -74,16 +104,22 @@ const SignUpScreen = ({ navigation }) =>{
                         initialValues={{ firstname: '', lastname: '',email: '', password: ''}}  
                         validationSchema={ReviewSignUpSchema}
                         onSubmit={(values, actions) => {
+                            
+                            checkLogin(values)
                             actions.resetForm();
-                            dispatch(updateMyProfile(values))
-                            navigation.navigate('Profile', values)
+                            
+                            
+                            
                            
-                            console.log({values});
+                            // console.log({values});
 
                         }}  
                     >
                         {(formikprops) => (
                             <View style={styles.formikContainer}>
+                                {
+                                    message==='User already exists!' ? <Text style={styles.errorText}>{message}</Text> : <Text></Text>       
+                                }
 
                                 <TextInput 
                                     style={styles.inputBox}

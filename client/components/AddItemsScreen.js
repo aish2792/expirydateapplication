@@ -2,16 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity, FlatList} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateIDs, updateCredentials } from '../redux/features/usersSlice'
-import { Dimensions } from "react-native";
+import { updateMyItemsList  } from '../redux/features/usersSlice'
 import colors from '../assets/colors'; 
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import axios from 'axios';
-import { Card } from 'react-native-paper';
 
 
 
+const today = new Date();
 const ReviewSignUpSchema = yup.object({
     itemName: yup
       .string()
@@ -26,7 +24,9 @@ const ReviewSignUpSchema = yup.object({
       .required("Item type is a required field"),
 
     expiryDate: yup
+    //   .date().transform(parseDateString).min(today)
       .date()
+      .min(today.toLocaleDateString("en-US"))
       .label('Expiry Date')
       .required("Expiry Date is a required field"),
 
@@ -35,16 +35,15 @@ const ReviewSignUpSchema = yup.object({
       .label('Price')
     
 })
-// function setIDOf (dispatch) {
-//     dispatch(updateIDs('1234'))
-    
-// }
 
 
 
 const AddItemsScreen = ({ navigation }) =>{
     const dispatch = useDispatch();
     // const {navigate} = navigation;
+
+    
+    
     
     return (
         <SafeAreaView>
@@ -55,9 +54,12 @@ const AddItemsScreen = ({ navigation }) =>{
                         validationSchema={ReviewSignUpSchema}
                         onSubmit={(values, actions) => {
                             actions.resetForm();
-                            // dispatch(updateMyProfile(values))
+
+                            dispatch(updateMyItemsList(values))
+                            
+
                            
-                            console.log(values);
+                            // console.log(values);
 
                         }}  
                     >
@@ -84,7 +86,7 @@ const AddItemsScreen = ({ navigation }) =>{
 
                                 <TextInput 
                                     style={styles.inputBox}
-                                    placeholder='Expiry Date'
+                                    placeholder='Expiry Date (MM/DD/YY)'
                                     onChangeText={formikprops.handleChange('expiryDate')}
                                     value={formikprops.values.expiryDate}
                                     onBlur={formikprops.handleBlur('expiryDate')}
@@ -124,37 +126,37 @@ const AddItemsScreen = ({ navigation }) =>{
 const styles = StyleSheet.create({
     
     container: {
-        display: 'flex',
+        // display: 'flex',
         flexDirection: 'column',
-        padding: 2,
-        backgroundColor: '#ffffff',
-        height: Dimensions.get('window').height-110,
-        borderRadius: 40,
-        margin: 10,
-        justifyContent: 'center',
+        // // padding: 2,
+        // backgroundColor: '#ffffff',
+        // height: Dimensions.get('window').height-110,
+        // borderRadius: 40,
+        // // margin: 10,
+        // justifyContent: 'center',
         // alignItems: 'center'
             
     },
     titleContainer: {
-        // flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20
+        // // flex: 1,
+        // justifyContent: 'center',
+        // alignItems: 'center',
+        // padding: 20
 
     },
     formikContainer: {
         // flex: 1,
         // justifyContent: 'flex-',
         // alignItems: 'flex-end'
-        padding: 20
+        // padding: 20
     },
 
     btnStyle: {
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        alignItems: 'flex-start',
-        padding: 20
-        // flex: 1,
+        // flexDirection: 'row',
+        // justifyContent: 'space-evenly',
+        // alignItems: 'flex-start',
+        padding: 20,
+        // flex: 1
         
     },
     btn: {
@@ -163,8 +165,8 @@ const styles = StyleSheet.create({
         borderRadius: 100
     },
     fontStyle: {
-        fontSize: 60,
-        color: colors.bloodred
+        // fontSize: 60,
+        // color: colors.bloodred
         
     },
     inputBox: {

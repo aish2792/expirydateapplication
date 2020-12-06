@@ -15,7 +15,7 @@ class Items(models.Model):
     # user = models.ForeignKey(Users, related_name="items", on_delete = models.CASCADE, default=1)
     name = models.CharField(max_length=100)
     typeItem = models.CharField(max_length=100, blank=True)
-    expirationDate = models.DateTimeField()
+    expirationDate = models.CharField(max_length=100)
     user = models.ForeignKey(Users, related_name="items", on_delete = models.CASCADE, default = 1)
 
 

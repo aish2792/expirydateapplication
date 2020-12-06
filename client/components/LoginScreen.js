@@ -2,7 +2,7 @@ import React, { useEffect, useState }  from 'react';
 import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUsers, updateCredentials } from '../redux/features/usersSlice'
+import { fetchUsers, updateMyProfile, updateID } from '../redux/features/usersSlice'
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
 import { Formik } from 'formik';
@@ -38,9 +38,13 @@ function LoginScreen({ navigation }) {
         .post('checklogin', {values})
         .then(({data}) => {
             setMessage(data)
-            console.log("data is : ", data['message'])
+            // console.log("data is : ", data['message'])
             if (data['message'] === 'Success') {
                 setValidUser(true)
+                // dispatch(updateMyProfile(values))
+                // console.log()
+                // dispatch(updateID(data))
+                // sendUsersData(values)
                 navigation.navigate('ItemList')
             }
             else {
@@ -48,6 +52,18 @@ function LoginScreen({ navigation }) {
             }  
         }).catch(err=>console.log(err))
     }
+
+    // async function sendUsersData(values) {
+    //     const request = 
+    //     await axios
+    //     .get('listusers', values)
+    //     .then(({data}) => {
+    //         // console.log("Data is : ",data)
+    //         dispatch(updateMyProfile(values))
+    //         dispatch(updateID(data))
+    //     }).catch(err=>console.log(err))
+
+    // }
 
     useEffect(() => {
         
@@ -58,6 +74,7 @@ function LoginScreen({ navigation }) {
             .get('listusers')
             .then(({data}) => {
                 dispatch(fetchUsers(data))
+                // console.log({data})
             }).catch(err=>console.log(err))
 
         }
