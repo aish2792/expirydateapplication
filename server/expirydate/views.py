@@ -7,10 +7,12 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 import bcrypt
 import datetime
+from datetime import date
+import collections
 
-# x = datetime.datetime.now()
+x = datetime.datetime.now()
 
-# print(x.strftime("%x"))
+
 
 def home(request):
     items = Items.objects.all()
@@ -102,13 +104,13 @@ def insert_items(request):
     dataform = request.body
     data1 = dataform.decode('utf-8')
     data = json.loads(data1)
-    print("data is : ", data)
+    # print("data is : ", data)
 
     if 'id' not in request.session:
         return JsonResponse({"message": "failure" })
     
     Items.objects.create(name=data['values']['itemName'], typeItem=data['values']['itemType'], expirationDate=data['values']['expiryDate'], user_id=request.session['id'] )
-    return JsonResponse({"message": "Success" })
+    return JsonResponse({"data": data })
 
 
 @csrf_exempt 
@@ -143,27 +145,43 @@ def logout(request):
     return JsonResponse({"message": "Logged Out successfully" })
 
 
+@csrf_exempt 
+def check_expiryDate(request):
+    if 'id' not in request.session:
+        return JsonResponse({"message": "failure" })
+    item = Items.objects.filter(user_id = request.session['id'])
+
+    serializer = ItemsSerializer(item, many=True)
+    # print("serial data : ",serializer.data)
+    data = serializer.data
+    due_items = []
+    for i in range(len(data)):
+
+        expirydate = data[i]['expirationDate']
+        todayDate = x.strftime("%x")
+        # print("today is : ",x.strftime("%x"))
+        # todayDate = x.strftime("%x")
+        # print("expiry date is : ",type(expirydate))
+        # print("today is : ",todayDate[-2:])
+        today_year = '20' + todayDate[-2:]
+        today_month = todayDate[0:2]
+        today_day = todayDate[3:5]
+
+        expiry_year = '20' + expirydate[-2:]
+        expiry_month = expirydate[0:2]
+        expiry_day = expirydate[3:5]
+
+        # formatDate = datetime.strptime(todayDate, '%m/%d/%Y')
+        # print("formatDate : ", formatDate)
+        d1 = date(int(expiry_year), int(expiry_month),int(expiry_day)) # expirydate
+        d2 = date(int(today_year), int(today_month),int(today_day)) # today's date
+        
+        no_days = abs(d1-d2).days
+
+        if no_days == 1:
+            # print("item(s) are : ",data[i]['name'])
+            due_items.append(data[i]['name'])
 
 
-   # print("new user : ", new_user.__dict__)
-    # data = request.body.decode('utf-8')
-    # data = json.loads(dataform)
-    # print("data is :",dataform['firstname'])
-    # Users.objects.create(firstName=FN, lastName=LN, email=EM, password=PS)
-    # return JsonResponse({"message":data})
 
-    # for key, value in data.items():
-    #     print("Key is : ",key)
-    #     print("Value is : ",value)
-
-
-
-    # return HttpResponse(f'<p>item_detail view with id {item_id}</p>')
-    # return render(request, 'items_detail.html', {
-    #     'item': item,
-    # })
-
-    # dataform = str(request.body).strip("'<>() ").replace('\'', '\"')
-    # print("dictonary is :",request.__dict__)
-    # dataform = (request.body).decode('utf-8')
-    # 
+    return JsonResponse({"itemsDue": due_items })

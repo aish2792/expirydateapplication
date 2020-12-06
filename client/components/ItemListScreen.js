@@ -9,7 +9,25 @@ import axios from '../navigation/axios';
 import { Card } from 'react-native-paper';
 import { Icon } from 'react-native-elements';
 import AddItemsScreen from './AddItemsScreen';
+import BackgroundTimer from 'react-native-background-timer';
+import moment from 'moment';
 
+// const timeoutId = BackgroundTimer.setInterval(() => {
+//     // const scheduledDate = moment()
+//     // console.log({scheduledDate})
+//     console.log('tac');
+//     // async function checkExpiredItems() {
+//     //     const request = 
+//     //     await axios
+//     //     .get('checkExpiryDates')
+//     //     .then(({data}) => {
+//     //         console.log({data})
+//     //     }).catch(err=>console.log(err))
+
+//     // }
+//     // checkExpiredItems();
+// // }, diffTime);
+// }, 5000);
 
 function ItemListScreen({ navigation, fetchUrl }) {
     const dispatch = useDispatch();
@@ -18,8 +36,7 @@ function ItemListScreen({ navigation, fetchUrl }) {
     const [isAddClicked, setisAddClicked] = useState(false)
     const [modalOpen, setModalOpen] = useState(false)
     const users = useSelector(state => state.users)
-
-
+    
     async function fetchData() {
         const request = await axios
         .get('itemsList')
@@ -33,37 +50,15 @@ function ItemListScreen({ navigation, fetchUrl }) {
     
     const handleIsExpired = () => {
         setisExpiredClicked(!isExpiredClicked) 
-        // console.log("after: ", isExpiredClicked)
-        // setisAddClicked(false) 
-
-        
         }
 
     const handleIsAdd = () => {
         
         setisAddClicked(!isAddClicked) 
-        // setisExpiredClicked(false)
         setModalOpen(true)
-        
-
-        // if(isAddClicked) {
-        //     navigation.navigate('AddItems')
-        // }
         }
-    async function insertItemsData(values) {
-        const request = await axios
-        .post('insertItems', {values})
-        .then(({data}) => {
-            // console.log("data is : ",data)
-    
-        })
-    }
-
-    
 
     const handleDone = () => {
-
-        insertItemsData(users['myItems']);
         setModalOpen(false)
         fetchData()
     
@@ -77,7 +72,6 @@ function ItemListScreen({ navigation, fetchUrl }) {
             await axios
             .get('listusers')
             .then(({data}) => {
-                // console.log("Data is : ",data)
                 dispatch(fetchUsers(data))
             }).catch(err=>console.log(err))
     
@@ -89,29 +83,41 @@ function ItemListScreen({ navigation, fetchUrl }) {
             await axios
             .get('fetchuser')
             .then(({data}) => {
-                console.log("Data is : ",data)
                 dispatch(updateMyProfile(data[0]))
                 dispatch(updateID(data[0]))
             }).catch(err=>console.log(err))
     
         }
         fetchCurrentUsersData();
+        // var now = moment()
+        // const scheduledDate = moment().add(1,'d').set({hour:09,minute:0,second:0,millisecond:0})
+        // const scheduledDate = moment()
+        // console.log({scheduledDate})
+        // const diffTime = scheduledDate.diff(moment())
+        // console.log({diffTime})
+        // const diffTime = 10000;
+        // const timeoutId = 
+        // BackgroundTimer.setInterval(() => {
+        //     // const scheduledDate = moment()
+        //     // console.log({scheduledDate})
+        //     // console.log('tac');
+        //     async function checkExpiredItems() {
+        //         const request = 
+        //         await axios
+        //         .get('checkExpiryDates')
+        //         .then(({data}) => {
+        //             console.log("items due are : ", data)
+        //         }).catch(err=>console.log(err))
+        
+        //     }
+        //     checkExpiredItems();
+        // // }, diffTime);
+        // }, 10000);
 
         
       }, []); 
 
-    // useEffect(() => users['myItems'], itemlist
-    //     { 
-    //         if(isAddClicked) {
-    //             console.log("clicked")
-                
-    //         }
-    //         // fetchData()
-            
-    //     }, [itemlist])  
 
-
-    
       
     return (
         <SafeAreaView>

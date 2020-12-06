@@ -38,13 +38,8 @@ function LoginScreen({ navigation }) {
         .post('checklogin', {values})
         .then(({data}) => {
             setMessage(data)
-            // console.log("data is : ", data['message'])
             if (data['message'] === 'Success') {
                 setValidUser(true)
-                // dispatch(updateMyProfile(values))
-                // console.log()
-                // dispatch(updateID(data))
-                // sendUsersData(values)
                 navigation.navigate('ItemList')
             }
             else {
@@ -53,17 +48,6 @@ function LoginScreen({ navigation }) {
         }).catch(err=>console.log(err))
     }
 
-    // async function sendUsersData(values) {
-    //     const request = 
-    //     await axios
-    //     .get('listusers', values)
-    //     .then(({data}) => {
-    //         // console.log("Data is : ",data)
-    //         dispatch(updateMyProfile(values))
-    //         dispatch(updateID(data))
-    //     }).catch(err=>console.log(err))
-
-    // }
 
     useEffect(() => {
         
@@ -74,7 +58,6 @@ function LoginScreen({ navigation }) {
             .get('listusers')
             .then(({data}) => {
                 dispatch(fetchUsers(data))
-                // console.log({data})
             }).catch(err=>console.log(err))
 
         }
@@ -123,7 +106,6 @@ function LoginScreen({ navigation }) {
                                     <Button
                                     title='Log in'
                                     buttonStyle={styles.btn}
-                                    // onPress={() => setIDOf(dispatch)}
                                     onPress={formikprops.handleSubmit}
                                     />
                                 </View>

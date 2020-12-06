@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import * as Sentry from '@sentry/react-native';
+
 
 // import * as Sentry from '@sentry/react-native';
 
@@ -21,6 +21,9 @@ export const usersSlice = createSlice({
         setMyItems(state, action) {
 			state.myItems = action.payload
         },
+        updateMyItems(state, action) {
+			state.myItems = [ ...state.myItems, action.payload ]
+        },
         setMyProfile(state, action) {
 			state.myProfile = action.payload
         },
@@ -31,7 +34,7 @@ export const usersSlice = createSlice({
 			state.users = action.payload
         },
         updateUsers(state, action) {
-            state.users = [ action.payload, ...state.users ]
+            state.users = [ ...state.users, action.payload ]
         },
         setError(state, action) {
             state.error = action.payload
@@ -42,6 +45,7 @@ export const usersSlice = createSlice({
 export const {
     setId,
     setMyItems,
+    updateMyItems,
     setMyProfile,
     setLoading,
     setUsers, 
@@ -57,19 +61,19 @@ export const updateID = (userId) => async (
     dispatch,
     getState,
   ) => {
-    //   console.log("userId: ",userId)
       try{
 
         const user_id = userId['id']
         dispatch(setLoading(true));
         dispatch(setId(user_id))
       }catch (error) {
-		Sentry.withScope(function (scope) {
-			scope.setTag("page.file", "usersSlice");
-			scope.setTag("page.function", "signup");
-			scope.setLevel("warning");
-			Sentry.captureException(new Error(error));
-		});
+		// Sentry.withScope(function (scope) {
+		// 	scope.setTag("page.file", "usersSlice");
+		// 	scope.setTag("page.function", "signup");
+		// 	scope.setLevel("warning");
+        // 	Sentry.captureException(new Error(error));
+        console.log("Error in usersSlice.js -> signup(): ", error);
+		
 		
 			console.log("Error in usersSlice.js -> signup(): ", error);
 		
@@ -88,10 +92,7 @@ export const updateCredentials = (cred) => async (
     ) => {
 
         console.log({cred})
-        // const {email, password} = cred
-        // dispatch(setEmail(email))
-        // dispatch(setPassword(password))
-        
+
     };
 
 export const updateMyProfile = (cred) => (
@@ -99,7 +100,6 @@ export const updateMyProfile = (cred) => (
     getState,
     ) => {
 
-        // console.log("cred : ",cred)
         const {id, firstName, lastName, email, password} = cred
         const profile = {
             'firstname': firstName,
@@ -117,10 +117,6 @@ export const fetchUsers = (users) => async (
     ) => {
 
             let userslist = users
-            // console.log("users are : ", users)
-            // users.forEach(element => {
-                
-            // });
             dispatch(setUsers(users))
             
 
@@ -132,13 +128,19 @@ export const updateMyItemsList = (items) => async (
     getState,
     ) => {
 
-            // let userslist = users
-            // console.log("users are : ", users)
-            // users.forEach(element => {
-                
-            // });
-            console.log("update")
             dispatch(setMyItems(items))
+            
+
+        
+    };
+
+export const updateExistingMyItemsList = (items) => async (
+    dispatch,
+    getState,
+    ) => {
+
+            console.log("update")
+            dispatch(updateMyItems(items))
             
 
         
@@ -147,7 +149,6 @@ export const updateMyItemsList = (items) => async (
 
 export const logout = () => dispatch => {
     try {
-        // console.log("entered logout")
 
         dispatch(setId(null))
         dispatch(setMyProfile({}))

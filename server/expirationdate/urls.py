@@ -27,7 +27,7 @@ urlpatterns = [
     path('checksignup', views.check_signup),
     path('insertItems', views.insert_items),
     path('itemsList/', views.items_detail),
-    # path('')
+    path('checkExpiryDates', views.check_expiryDate), 
     path('logout', views.logout),
 
 ]

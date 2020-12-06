@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity, FlatList} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateMyItemsList  } from '../redux/features/usersSlice'
+import { updateExistingMyItemsList  } from '../redux/features/usersSlice'
 import colors from '../assets/colors'; 
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import axios from '../navigation/axios';
 
 
 
@@ -24,7 +25,6 @@ const ReviewSignUpSchema = yup.object({
       .required("Item type is a required field"),
 
     expiryDate: yup
-    //   .date().transform(parseDateString).min(today)
       .date()
       .min(today.toLocaleDateString("en-US"))
       .label('Expiry Date')
@@ -40,7 +40,13 @@ const ReviewSignUpSchema = yup.object({
 
 const AddItemsScreen = ({ navigation }) =>{
     const dispatch = useDispatch();
-    // const {navigate} = navigation;
+    async function insertItemsData(values) {
+        const request = await axios
+        .post('insertItems', {values})
+        .then(({data}) => {
+    
+        })
+    }
 
     
     
@@ -54,12 +60,9 @@ const AddItemsScreen = ({ navigation }) =>{
                         validationSchema={ReviewSignUpSchema}
                         onSubmit={(values, actions) => {
                             actions.resetForm();
-
-                            dispatch(updateMyItemsList(values))
-                            
-
-                           
-                            // console.log(values);
+                            console.log("Values are : ",values);
+                            insertItemsData(values)
+                            dispatch(updateExistingMyItemsList(values))
 
                         }}  
                     >
@@ -126,37 +129,17 @@ const AddItemsScreen = ({ navigation }) =>{
 const styles = StyleSheet.create({
     
     container: {
-        // display: 'flex',
         flexDirection: 'column',
-        // // padding: 2,
-        // backgroundColor: '#ffffff',
-        // height: Dimensions.get('window').height-110,
-        // borderRadius: 40,
-        // // margin: 10,
-        // justifyContent: 'center',
-        // alignItems: 'center'
             
     },
     titleContainer: {
-        // // flex: 1,
-        // justifyContent: 'center',
-        // alignItems: 'center',
-        // padding: 20
-
     },
     formikContainer: {
-        // flex: 1,
-        // justifyContent: 'flex-',
-        // alignItems: 'flex-end'
-        // padding: 20
     },
 
     btnStyle: {
-        // flexDirection: 'row',
-        // justifyContent: 'space-evenly',
-        // alignItems: 'flex-start',
         padding: 20,
-        // flex: 1
+
         
     },
     btn: {
@@ -165,8 +148,6 @@ const styles = StyleSheet.create({
         borderRadius: 100
     },
     fontStyle: {
-        // fontSize: 60,
-        // color: colors.bloodred
         
     },
     inputBox: {

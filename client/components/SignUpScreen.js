@@ -46,8 +46,6 @@ const SignUpScreen = ({ navigation }) =>{
         const request = await axios
         .post('checksignup', {values})
         .then(({data}) => {
-            console.log(data['message'])
-            // setMessage(data['message'])
             if (data['message'] === 'User already exists!') {
                 setMessage(data['message'])
             }
@@ -58,14 +56,11 @@ const SignUpScreen = ({ navigation }) =>{
         }).catch(err=>console.log(err))
     }
 
-    // const msg = message['message']
-
     async function sendUsersData(values) {
         const request = 
         await axios
         .post('users', values)
         .then(({data}) => {
-            // console.log("Data is : ",data)
             dispatch(updateMyProfile(values))
             dispatch(updateID(data))
 
@@ -83,7 +78,6 @@ const SignUpScreen = ({ navigation }) =>{
             await axios
             .get('listusers')
             .then(({data}) => {
-                // console.log("Data is : ",data)
                 dispatch(fetchUsers(data))
             }).catch(err=>console.log(err))
 
