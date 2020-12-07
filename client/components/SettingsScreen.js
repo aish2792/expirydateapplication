@@ -15,7 +15,7 @@ function SettingsScreen({ navigation }) {
         const request = await axios
         .post('logout')
         .then(({data}) => {
-            console.log({data})
+            // console.log({data})
             dispatch(logout())
             
 
@@ -23,12 +23,26 @@ function SettingsScreen({ navigation }) {
 
     }
 
+    async function deleteAccount() {
+        const request = await axios
+        .post('deleteAccount')
+        .then(({data}) => {
+            // console.log({data})
+            dispatch(logout())
+            
+
+        })
+
+    }
     const handleLogOut = () => {
         logOut()
-        navigation.navigate('Login')
-
-        
+        navigation.navigate('Login') 
         }
+    
+    const handleDeleteAccount = () => {
+        deleteAccount()
+        navigation.navigate('Login') 
+    }
 
 
     return (
@@ -47,7 +61,7 @@ function SettingsScreen({ navigation }) {
                 <Button
                     title='Delete Account'
                     buttonStyle={styles.btn}
-                    onPress={() => navigation.navigate('Register')}
+                    onPress={() => handleDeleteAccount()}
                                 
                 /> 
 

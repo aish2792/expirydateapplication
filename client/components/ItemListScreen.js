@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity, FlatList, Modal} from 'react-native';
+import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity, FlatList, Modal, Alert} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { useSelector, useDispatch } from 'react-redux';
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
-import { fetchUsers, updateID, updateMyProfile, updateMyItemsList } from '../redux/features/usersSlice'
+import { fetchUsers, updateID, updateMyProfile, updateMyItemsList, removeItem } from '../redux/features/usersSlice'
 import axios from '../navigation/axios';
 import { Card } from 'react-native-paper';
 import { Icon } from 'react-native-elements';
@@ -12,36 +12,27 @@ import AddItemsScreen from './AddItemsScreen';
 import BackgroundTimer from 'react-native-background-timer';
 import moment from 'moment';
 
-// const timeoutId = BackgroundTimer.setInterval(() => {
-//     // const scheduledDate = moment()
-//     // console.log({scheduledDate})
-//     console.log('tac');
-//     // async function checkExpiredItems() {
-//     //     const request = 
-//     //     await axios
-//     //     .get('checkExpiryDates')
-//     //     .then(({data}) => {
-//     //         console.log({data})
-//     //     }).catch(err=>console.log(err))
-
-//     // }
-//     // checkExpiredItems();
-// // }, diffTime);
-// }, 5000);
-
-function ItemListScreen({ navigation, fetchUrl }) {
+function ItemListScreen({ navigation }) {
     const dispatch = useDispatch();
     const [itemlist, setItemlist] = useState([])
     const [isExpiredClicked, setisExpiredClicked] = useState(false)
     const [isAddClicked, setisAddClicked] = useState(false)
     const [modalOpen, setModalOpen] = useState(false)
+    const [dueItems, setDueItems] = useState([])
     const users = useSelector(state => state.users)
+
+    // console.log(users['myItems'])
+    const allitems = users['myItems']
+    // allitems.forEach(element => {
+    //     console.log("element : ", element.name)
+    // });
     
     async function fetchData() {
         const request = await axios
         .get('itemsList')
         .then(({data}) => {
             setItemlist(data)
+            // console.log('items are : ',itemlist)
             dispatch(updateMyItemsList(data))
         })
 
@@ -65,6 +56,37 @@ function ItemListScreen({ navigation, fetchUrl }) {
             
         }
     
+    const handleAlert = (data) => {
+        // console.log("Alert data is : ",data)
+        let alertString = 'Item(s) listed below are about to expire tomorrow: ' + "\n" + [data]
+        Alert.alert(
+            'Attention',
+            alertString,
+            [
+              {text: 'OK', onPress: () => console.log('Ok Pressed!')},
+            ],
+            { cancelable: false }
+          )
+            
+        }
+    
+    const handleDelete = (itemid) => {
+        
+        async function removeItemFromList() {
+            const request = await axios
+            .post('removeItemFromMyList', {itemid})
+            .then(({data}) => {
+                dispatch(removeItem(itemid))
+                console.log({data})        
+            }).catch(err=>console.log(err))
+        }
+        removeItemFromList();
+        fetchData()
+
+
+    }
+
+
     useEffect(() => {      
         fetchData();
         async function fetchUsersData() {
@@ -89,35 +111,37 @@ function ItemListScreen({ navigation, fetchUrl }) {
     
         }
         fetchCurrentUsersData();
-        // var now = moment()
-        // const scheduledDate = moment().add(1,'d').set({hour:09,minute:0,second:0,millisecond:0})
-        // const scheduledDate = moment()
-        // console.log({scheduledDate})
-        // const diffTime = scheduledDate.diff(moment())
-        // console.log({diffTime})
-        // const diffTime = 10000;
+        const scheduledDate = moment().add(1,'d').set({hour:9,minute:0,second:0,millisecond:0})
+        const diffTime = scheduledDate.diff(moment())
         // const timeoutId = 
-        // BackgroundTimer.setInterval(() => {
-        //     // const scheduledDate = moment()
-        //     // console.log({scheduledDate})
-        //     // console.log('tac');
-        //     async function checkExpiredItems() {
-        //         const request = 
-        //         await axios
-        //         .get('checkExpiryDates')
-        //         .then(({data}) => {
-        //             console.log("items due are : ", data)
-        //         }).catch(err=>console.log(err))
-        
-        //     }
-        //     checkExpiredItems();
-        // // }, diffTime);
-        // }, 10000);
+        BackgroundTimer.setInterval(() => {
+            
 
+            async function checkExpiredItems() {
+                const request = 
+                await axios
+                .get('checkExpiryDates')
+                .then(({data}) => {
+                    setDueItems(data)
+                    if (Object.keys(data).length > 0) {
+                        handleAlert(data['itemsDue'])
+                    }
+   
+                }).catch(err=>console.log(err))
         
+            }
+            checkExpiredItems();
+        }, diffTime);
+        // return BackgroundTimer.clearInterval(timeoutId)      
       }, []); 
 
-
+    //   useEffect(()=>{
+    //     const unsubscribe = navigation.addListener('focus', () => {
+    //         console.log("refreshed")
+          
+    //     });
+    //     return unsubscribe;
+    //   }, [navigation]);
       
     return (
         <SafeAreaView>
@@ -157,13 +181,17 @@ function ItemListScreen({ navigation, fetchUrl }) {
 
                 
                 <View style={styles.cardContainer}>
-                    {itemlist.length == 0 ? 
+                    {/* {itemlist.length == 0 ?  */}
+                    {allitems.length == 0 ? 
                     <View style={styles.noItemsContainer}><Text style={styles.noItemsText} >No items found!</Text></View> :
                     <FlatList
                     keyExtractor={item => item.id.toString()}
-                    data={itemlist}
+                    data={allitems}
+                    // data={itemlist}
+                    // data={users['myItems']}
                     renderItem={({item}) => {
                     return (
+                        // <Text>{item.id.toString()}</Text>
                         <Card style={styles.card}>
                             <View style={{ margin: 10 }}>
                                 <View style={{ flexDirection: 'row' }}>
@@ -185,12 +213,13 @@ function ItemListScreen({ navigation, fetchUrl }) {
                                 
                                     <View style={{ flex: 0.5, justifyContent:"center", alignItems:'center' }}>
                                         <TouchableOpacity
+                                            onPress = {() => handleDelete(item.id)}
                                             
                                         >
                                             <Icon
                                                     name='trash'
                                                     type='font-awesome'
-                                                    color={ isExpiredClicked? colors.silver : colors.black }
+                                                    color={ colors.black }
                                                     size={35}
 
                                             />
@@ -216,22 +245,6 @@ function ItemListScreen({ navigation, fetchUrl }) {
                 </View> 
                 <View style={styles.iconStyle}>
                     
-                    <View style={{ flexDirection: 'column'}}>
-                        <TouchableOpacity
-                            onPress={() => handleIsExpired()}
-                        >
-                            <Icon
-                                    name='history'
-                                    type='font-awesome'
-                                    color={ colors.black }
-                                    size={35}
-
-                                    />
-
-                        </TouchableOpacity>
-                            
-                        <Text style={{ color: colors.darkgray}}>Expired</Text>
-                    </View>  
 
                     <View style={{ flexDirection: 'column'}}>
                         <TouchableOpacity

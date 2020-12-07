@@ -38,7 +38,11 @@ export const usersSlice = createSlice({
         },
         setError(state, action) {
             state.error = action.payload
-        }
+        },
+        removeFromMyItems(state, action) {
+            let itemId = action.payload;
+            state.myItems = state.myItems.filter((el) => el.id !== itemId);
+          },
     }
 })
 
@@ -49,7 +53,8 @@ export const {
     setMyProfile,
     setLoading,
     setUsers, 
-    setError
+    setError,
+    removeFromMyItems
 } = usersSlice.actions
 
 
@@ -159,21 +164,15 @@ export const logout = () => dispatch => {
         console.log(error.message)
 
     }
-
-    // } catch (error) {
-    //     Sentry.withScope(function (scope) {
-    //         scope.setTag("page.file", "usersSlice");
-    //         scope.setTag("page.function", "logout");
-    //         Sentry.captureException(new Error(error));
-    //     });
-        
-    //         console.log("Error in usersSlice.js -> logout(): ", error);
-        
-    //     dispatch(setError(error.message))
-    // } finally {
-    //     dispatch(setLoading(false))
-    // }
 };
+
+
+export const removeItem = (itemid) => dispatch => {
+
+
+    // console.log({itemid})
+    dispatch(removeFromMyItems(itemid))
+}
     
 
 

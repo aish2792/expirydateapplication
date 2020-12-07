@@ -43,7 +43,11 @@ const AddItemsScreen = ({ navigation }) =>{
     async function insertItemsData(values) {
         const request = await axios
         .post('insertItems', {values})
-        .then(({data}) => {
+        .then((data) => {
+            
+            const currentItem = data['data']
+            console.log("current item is : ", currentItem)
+            dispatch(updateExistingMyItemsList(currentItem))
     
         })
     }
@@ -62,7 +66,7 @@ const AddItemsScreen = ({ navigation }) =>{
                             actions.resetForm();
                             console.log("Values are : ",values);
                             insertItemsData(values)
-                            dispatch(updateExistingMyItemsList(values))
+                            
 
                         }}  
                     >
