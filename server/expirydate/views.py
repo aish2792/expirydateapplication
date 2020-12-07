@@ -110,7 +110,20 @@ def insert_items(request):
         return JsonResponse({"message": "failure" })
     
     Items.objects.create(name=data['values']['itemName'], typeItem=data['values']['itemType'], expirationDate=data['values']['expiryDate'], user_id=request.session['id'] )
-    return JsonResponse({"data": data })
+    total = Items.objects.filter(name=data['values']['itemName'], typeItem=data['values']['itemType'], expirationDate=data['values']['expiryDate'], user_id=request.session['id'] )
+    serializer = ItemsSerializer(total, many=True)
+    returndata = serializer.data
+    
+    currentitem = {
+        'id':returndata[0]['id'],
+        'name':returndata[0]['name'],
+        'typeItem':returndata[0]['typeItem'],
+        'expirationDate':returndata[0]['expirationDate'],
+        'user_id':returndata[0]['user_id']
+
+    }
+    print("total is : ", currentitem)
+    return JsonResponse(currentitem)
 
 
 @csrf_exempt 
@@ -159,10 +172,6 @@ def check_expiryDate(request):
 
         expirydate = data[i]['expirationDate']
         todayDate = x.strftime("%x")
-        # print("today is : ",x.strftime("%x"))
-        # todayDate = x.strftime("%x")
-        # print("expiry date is : ",type(expirydate))
-        # print("today is : ",todayDate[-2:])
         today_year = '20' + todayDate[-2:]
         today_month = todayDate[0:2]
         today_day = todayDate[3:5]
@@ -185,3 +194,36 @@ def check_expiryDate(request):
 
 
     return JsonResponse({"itemsDue": due_items })
+
+# MyModel.objects.filter(pk=1).delete()
+
+@csrf_exempt 
+def remove_Item(request):
+    if 'id' not in request.session:
+        return JsonResponse({"message": "failure" })
+    
+    dataform = request.body
+    data1 = dataform.decode('utf-8')
+    data = json.loads(data1)
+    # print("data is ", data)
+    
+    Items.objects.filter(user_id = request.session['id'], id= data['itemid']).delete()
+    return JsonResponse({"message": "success" })
+
+@csrf_exempt 
+def delete_account(request):
+    if 'id' not in request.session:
+        return JsonResponse({"message": "failure" })
+    
+    
+    # dataform = request.body
+    # data1 = dataform.decode('utf-8')
+    # data = json.loads(data1)
+    # print(request.session['id'])
+    Users.objects.filter(id = request.session['id']).delete()
+    for item in Items.objects.filter(user_id = request.session['id']):
+        item.delete()
+
+    request.session.flush()
+
+    return JsonResponse({"message": "success" })

@@ -145,6 +145,7 @@ const SignUpScreen = ({ navigation }) =>{
                                 <TextInput 
                                     style={styles.inputBox}
                                     placeholder='Password'
+                                    secureTextEntry={true}
                                     onChangeText={formikprops.handleChange('password')}
                                     value={formikprops.values.password}
                                     onBlur={formikprops.handleBlur('password')}

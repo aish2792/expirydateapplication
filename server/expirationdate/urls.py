@@ -28,6 +28,8 @@ urlpatterns = [
     path('insertItems', views.insert_items),
     path('itemsList/', views.items_detail),
     path('checkExpiryDates', views.check_expiryDate), 
+    path('removeItemFromMyList', views.remove_Item), 
     path('logout', views.logout),
+    path('deleteAccount', views.delete_account),
 
 ]

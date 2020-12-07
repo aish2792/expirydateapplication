@@ -19,6 +19,7 @@ const ReviewSignUpSchema = yup.object({
       .required("Email is a required field"),
     password: yup
       .string()
+    //   .password()
       .min(6, "Must be at least 6 characters")
       .label('Password')
       .required("Password is a required field")
@@ -97,6 +98,8 @@ function LoginScreen({ navigation }) {
                                 <TextInput 
                                     style={styles.inputBox}
                                     placeholder='Password'
+                                    textContentType = "password"
+                                    secureTextEntry={true}
                                     onChangeText={formikprops.handleChange('password')}
                                     value={formikprops.values.password}
                                     onBlur={formikprops.handleBlur('email')}
