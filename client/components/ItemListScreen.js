@@ -12,6 +12,9 @@ import AddItemsScreen from './AddItemsScreen';
 import BackgroundTimer from 'react-native-background-timer';
 import moment from 'moment';
 
+
+/**  Handles the Items List screen. Updates the screen when users add or delete items. Displays expiry date
+ * of the items along with the name and type */
 function ItemListScreen({ navigation }) {
     const dispatch = useDispatch();
     const [itemlist, setItemlist] = useState([])
@@ -21,30 +24,24 @@ function ItemListScreen({ navigation }) {
     const [dueItems, setDueItems] = useState([])
     const users = useSelector(state => state.users)
 
-    // console.log(users['myItems'])
     const allitems = users['myItems']
-    // allitems.forEach(element => {
-    //     console.log("element : ", element.name)
-    // });
-    
+
+    // Async call to API to fetch the list of the items of the current user
     async function fetchData() {
         const request = await axios
         .get('itemsList')
         .then(({data}) => {
             setItemlist(data)
-            // console.log('items are : ',itemlist)
             dispatch(updateMyItemsList(data))
         })
 
     }
 
-    
     const handleIsExpired = () => {
         setisExpiredClicked(!isExpiredClicked) 
         }
 
-    const handleIsAdd = () => {
-        
+    const handleIsAdd = () => { 
         setisAddClicked(!isAddClicked) 
         setModalOpen(true)
         }
@@ -55,40 +52,51 @@ function ItemListScreen({ navigation }) {
     
             
         }
-    
-    const handleAlert = (data) => {
-        // console.log("Alert data is : ",data)
+
+    // Function that alerts the users with the names of items, a day before the due date.
+    const handleAlert = (data) => {  
         let alertString = 'Item(s) listed below are about to expire tomorrow: ' + "\n" + [data]
         Alert.alert(
             'Attention',
             alertString,
             [
-              {text: 'OK', onPress: () => console.log('Ok Pressed!')},
+                {text: 'OK', onPress: () => console.log('Ok Pressed!')},
             ],
             { cancelable: false }
-          )
+            )
+            
+        }
+    
+    const handleNoItemsAlert = () => {  
+        let alertString = 'There are no items about to expire tomorrow!' 
+        Alert.alert(
+            'Attention',
+            alertString,
+            [
+                {text: 'OK', onPress: () => console.log('Ok Pressed!')},
+            ],
+            { cancelable: false }
+            )
             
         }
     
     const handleDelete = (itemid) => {
-        
+        // Async call to API to remove the items from the list when the user deletes an item.
         async function removeItemFromList() {
             const request = await axios
             .post('removeItemFromMyList', {itemid})
             .then(({data}) => {
-                dispatch(removeItem(itemid))
-                console.log({data})        
+                dispatch(removeItem(itemid))     
             }).catch(err=>console.log(err))
         }
         removeItemFromList();
         fetchData()
-
-
     }
 
 
     useEffect(() => {      
         fetchData();
+        // Async call to API to load all the users' details
         async function fetchUsersData() {
             const request = 
             await axios
@@ -100,6 +108,7 @@ function ItemListScreen({ navigation }) {
         }
         fetchUsersData();
 
+        // Async call to API to load the current user's details
         async function fetchCurrentUsersData() {
             const request = 
             await axios
@@ -111,38 +120,35 @@ function ItemListScreen({ navigation }) {
     
         }
         fetchCurrentUsersData();
+
+        // Timer set to 9 AM every morning that will check if there are any items with expiry date due the very next day
         const scheduledDate = moment().add(1,'d').set({hour:9,minute:0,second:0,millisecond:0})
         const diffTime = scheduledDate.diff(moment())
-        // const timeoutId = 
         BackgroundTimer.setInterval(() => {
-            
 
+            // Async call to API to check if any items are due the next day
             async function checkExpiredItems() {
                 const request = 
                 await axios
                 .get('checkExpiryDates')
                 .then(({data}) => {
                     setDueItems(data)
+                    // console.log(data['itemsDue'])s
                     if (Object.keys(data).length > 0) {
+                        // console.log("length is : ", data['itemsDue'] )
                         handleAlert(data['itemsDue'])
+                    }
+                    else {
+                        handleNoItemsAlert()
                     }
    
                 }).catch(err=>console.log(err))
         
             }
             checkExpiredItems();
-        }, diffTime);
-        // return BackgroundTimer.clearInterval(timeoutId)      
+        }, diffTime); 
       }, []); 
 
-    //   useEffect(()=>{
-    //     const unsubscribe = navigation.addListener('focus', () => {
-    //         console.log("refreshed")
-          
-    //     });
-    //     return unsubscribe;
-    //   }, [navigation]);
-      
     return (
         <SafeAreaView>
             <View style={styles.container}>
@@ -181,17 +187,13 @@ function ItemListScreen({ navigation }) {
 
                 
                 <View style={styles.cardContainer}>
-                    {/* {itemlist.length == 0 ?  */}
                     {allitems.length == 0 ? 
                     <View style={styles.noItemsContainer}><Text style={styles.noItemsText} >No items found!</Text></View> :
                     <FlatList
                     keyExtractor={item => item.id.toString()}
                     data={allitems}
-                    // data={itemlist}
-                    // data={users['myItems']}
                     renderItem={({item}) => {
                     return (
-                        // <Text>{item.id.toString()}</Text>
                         <Card style={styles.card}>
                             <View style={{ margin: 10 }}>
                                 <View style={{ flexDirection: 'row' }}>
@@ -209,8 +211,6 @@ function ItemListScreen({ navigation }) {
 
                                     </View>
                                         
-                                    
-                                
                                     <View style={{ flex: 0.5, justifyContent:"center", alignItems:'center' }}>
                                         <TouchableOpacity
                                             onPress = {() => handleDelete(item.id)}
@@ -229,13 +229,7 @@ function ItemListScreen({ navigation }) {
                                     </View>
 
                                 </View>
-                                    
-
-
-                                </View>
-                                
-                            
-                            
+                                </View>    
                         </Card>
                             
                         )
@@ -244,21 +238,16 @@ function ItemListScreen({ navigation }) {
                 }    
                 </View> 
                 <View style={styles.iconStyle}>
-                    
-
                     <View style={{ flexDirection: 'column'}}>
                         <TouchableOpacity
-                            // style= { isExpiredClicked ? styles.expiredIconLiked : styles.interactionContainer } 
                             onPress={
                                 () => handleIsAdd()
-            
                             }
-
                         >
                             <Icon
                                 name='plus-circle'
                                 type='font-awesome'
-                                color={ isAddClicked ? colors.silver : colors.black }
+                                color={ colors.black }
                                 size={35}
                                 />
 
@@ -301,33 +290,22 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         margin: 10,
         justifyContent: 'center',
-        // flex: 1
-        // alignItems: 'center'
             
     },
     modalContainer: {
         display: 'flex',
-        // flexDirection: 'column',
         paddingTop: 50,
         backgroundColor: colors.wildsand,
         padding: 20,
-        // flex:1,
-        // height: Dimensions.get('window').height-110,
         borderRadius: 40,
         marginTop: 100,
         margin: 10
-        // justifyContent: 'center',
-        // flex: 1
-        // alignItems: 'center'
     },
     cross: {
-        // flex: 1
-        // justifyContent: 'center',
         alignItems: 'flex-end',
         padding: 10
     },
     form: {
-        // flex: 1
         justifyContent: 'flex-start'
     },
     cardContainer: {
@@ -380,15 +358,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        
         padding: 20
-        // flex: 1,
         
     },
     btn: {
         backgroundColor: colors.bloodred,
         width: '100%',
-        // alignSelf: 'stretch',
         borderRadius: 100
         
     },

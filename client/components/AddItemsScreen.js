@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity, FlatList} from 'react-native';
-import { Button, Input } from 'react-native-elements';
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
+import { StyleSheet, Text, TextInput, View, SafeAreaView} from 'react-native';
+import { Button } from 'react-native-elements';
+import { useDispatch } from 'react-redux';
 import { updateExistingMyItemsList  } from '../redux/features/usersSlice'
 import colors from '../assets/colors'; 
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import axios from '../navigation/axios';
-
 
 
 const today = new Date();
@@ -37,24 +36,23 @@ const ReviewSignUpSchema = yup.object({
 })
 
 
+/** Handles Add Items modal and adds the items to Items List screen. Items 
+ * are added to the database via API calls using AXIOS */
 
 const AddItemsScreen = ({ navigation }) =>{
     const dispatch = useDispatch();
+
+    // Async call to API to insert the items
     async function insertItemsData(values) {
         const request = await axios
         .post('insertItems', {values})
-        .then((data) => {
-            
+        .then((data) => {            
             const currentItem = data['data']
-            console.log("current item is : ", currentItem)
-            dispatch(updateExistingMyItemsList(currentItem))
+            dispatch(updateExistingMyItemsList(currentItem)) // update myItems in the state
     
         })
     }
 
-    
-    
-    
     return (
         <SafeAreaView>
              <View style={styles.container}>
@@ -64,14 +62,12 @@ const AddItemsScreen = ({ navigation }) =>{
                         validationSchema={ReviewSignUpSchema}
                         onSubmit={(values, actions) => {
                             actions.resetForm();
-                            console.log("Values are : ",values);
                             insertItemsData(values)
                             
-
                         }}  
                     >
                         {(formikprops) => (
-                            <View style={styles.formikContainer}>
+                            <View>
 
                                 <TextInput 
                                     style={styles.inputBox}
@@ -116,14 +112,10 @@ const AddItemsScreen = ({ navigation }) =>{
                                         onPress={formikprops.handleSubmit}
                                         />
                                 </View>   
-                            </View>
-                            
+                            </View>                      
                         )}
-                    </Formik>  
-                     
-                </View>  
-                
-                 
+                    </Formik>                      
+                </View>                  
             </View>    
         </SafeAreaView>
   
@@ -136,24 +128,19 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
             
     },
-    titleContainer: {
-    },
-    formikContainer: {
-    },
 
     btnStyle: {
-        padding: 20,
-
-        
+        padding: 30,
+        justifyContent: 'center',
+        alignItems: 'center'  
     },
+
     btn: {
         backgroundColor: colors.bloodred,
         width: '100%',
         borderRadius: 100
     },
-    fontStyle: {
-        
-    },
+
     inputBox: {
         borderColor: colors.silver,
         margin: 10,
@@ -173,7 +160,6 @@ const styles = StyleSheet.create({
         textAlign: 'center'
         
     }
-
     
 })
 

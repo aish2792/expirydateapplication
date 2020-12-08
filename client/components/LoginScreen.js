@@ -1,8 +1,8 @@
 import React, { useEffect, useState }  from 'react';
-import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
-import { Button, Input } from 'react-native-elements';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchUsers, updateMyProfile, updateID } from '../redux/features/usersSlice'
+import { StyleSheet, Text, TextInput, View , SafeAreaView, TouchableOpacity} from 'react-native';
+import { Button } from 'react-native-elements';
+import { useDispatch } from 'react-redux';
+import { fetchUsers } from '../redux/features/usersSlice'
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
 import { Formik } from 'formik';
@@ -10,6 +10,7 @@ import * as yup from 'yup';
 import axios from '../navigation/axios';
 
 
+// yup schema for validation
 const ReviewSignUpSchema = yup.object({
     email: yup
       .string()
@@ -25,15 +26,13 @@ const ReviewSignUpSchema = yup.object({
       .required("Password is a required field")
 })
 
-
-
-
-
+/** Handles Login screen and and the necessary validations.  */
 function LoginScreen({ navigation }) {
     const dispatch = useDispatch();
     const [message, setMessage] = useState([])
     const [validUser, setValidUser] = useState(false)
 
+    // Async call to API to check if the user exists and validate the password.
     async function checkLogin(values) {
         const request = await axios
         .post('checklogin', {values})
@@ -51,16 +50,14 @@ function LoginScreen({ navigation }) {
 
 
     useEffect(() => {
-        
-        async function fetchUsersData() {
-            
+        // Async call to API to fetch the list of all the users
+        async function fetchUsersData() {    
             const request = 
             await axios
             .get('listusers')
             .then(({data}) => {
                 dispatch(fetchUsers(data))
             }).catch(err=>console.log(err))
-
         }
         fetchUsersData();  
       }, ['listusers']); 
@@ -145,21 +142,14 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         margin: 10,
         justifyContent: 'center',
-        // flex: 1
-        // alignItems: 'center'
             
     },
     titleContainer: {
-        // flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        // padding: 20
 
     },
     formikContainer: {
-        // flex: 1,
-        // justifyContent: 'flex-',
-        // alignItems: 'flex-end'
         paddingTop: 50
     },
 
@@ -167,15 +157,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'flex-start',
-        
-        // padding: 20
-        // flex: 1,
-        
     },
+
     btn: {
         backgroundColor: colors.bloodred,
         width: '100%',
-        // alignSelf: 'stretch',
         borderRadius: 100
         
     },

@@ -1,7 +1,7 @@
 import React, { useEffect, useState }  from 'react';
-import { StyleSheet, Text, TextInput, View, Image , SafeAreaView, TouchableOpacity} from 'react-native';
-import { Button, Input } from 'react-native-elements';
-import { useSelector, useDispatch } from 'react-redux';
+import { StyleSheet, Text, TextInput, View , SafeAreaView } from 'react-native';
+import { Button } from 'react-native-elements';
+import { useDispatch } from 'react-redux';
 import { fetchUsers, updateMyProfile, updateID } from '../redux/features/usersSlice'
 import { Dimensions } from "react-native";
 import colors from '../assets/colors'; 
@@ -10,6 +10,7 @@ import * as yup from 'yup';
 import axios from '../navigation/axios';
 
 
+// yup schema for validation
 const ReviewSignUpSchema = yup.object({
     firstname: yup
       .string()
@@ -38,10 +39,13 @@ const ReviewSignUpSchema = yup.object({
     
 })
 
+/** Handles sign up screen and the necessary validations. */
+
 const SignUpScreen = ({ navigation }) =>{
     const dispatch = useDispatch();
     const [message, setMessage] = useState([])
 
+    // Async call to API to check if the user exists.
     async function checkLogin(values) {
         const request = await axios
         .post('checksignup', {values})
@@ -50,12 +54,13 @@ const SignUpScreen = ({ navigation }) =>{
                 setMessage(data['message'])
             }
             else {
-                dispatch(updateMyProfile(values))
+                dispatch(updateMyProfile(values)) // update myProfile in the state
                 sendUsersData(values)
             }  
         }).catch(err=>console.log(err))
     }
 
+    // Add user in the database
     async function sendUsersData(values) {
         const request = 
         await axios
@@ -63,22 +68,20 @@ const SignUpScreen = ({ navigation }) =>{
         .then(({data}) => {
             dispatch(updateMyProfile(values))
             dispatch(updateID(data))
-
             navigation.navigate('ItemList')
         }).catch(err=>console.log(err))
 
     }
     
-  
-    
     useEffect(() => {
         
+        // fetch all the users
         async function fetchUsersData() {
             const request = 
             await axios
             .get('listusers')
             .then(({data}) => {
-                dispatch(fetchUsers(data))
+                dispatch(fetchUsers(data)) // update users in the state
             }).catch(err=>console.log(err))
 
         }
@@ -98,14 +101,8 @@ const SignUpScreen = ({ navigation }) =>{
                         initialValues={{ firstname: '', lastname: '',email: '', password: ''}}  
                         validationSchema={ReviewSignUpSchema}
                         onSubmit={(values, actions) => {
-                            
                             checkLogin(values)
                             actions.resetForm();
-                            
-                            
-                            
-                           
-                            // console.log({values});
 
                         }}  
                     >
@@ -162,14 +159,10 @@ const SignUpScreen = ({ navigation }) =>{
                             </View>
                             
                         )}
-                    </Formik>  
-                     
-                </View>  
-                
-                 
+                    </Formik>      
+                </View>     
             </View>    
         </SafeAreaView>
-  
     )
 }
 
@@ -184,20 +177,15 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         margin: 10,
         justifyContent: 'center',
-        // alignItems: 'center'
             
     },
     titleContainer: {
-        // flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20
 
     },
     formikContainer: {
-        // flex: 1,
-        // justifyContent: 'flex-',
-        // alignItems: 'flex-end'
         padding: 20
     },
 
@@ -206,7 +194,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
         alignItems: 'flex-start',
         padding: 20
-        // flex: 1,
         
     },
     btn: {

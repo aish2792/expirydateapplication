@@ -10,48 +10,37 @@ import datetime
 from datetime import date
 import collections
 
-x = datetime.datetime.now()
-
-
+x = datetime.datetime.now() # today's date
 
 def home(request):
     items = Items.objects.all()
-    # return HttpResponse('<p>Home view</p>')
     return render(request, 'home.html', {
         'items': items,
     })
 
+
 def items_detail(request):
     # Returns Json list of all items
+
     if 'id' not in request.session:
         return JsonResponse({"message": "failure" })
-        # item = Items.objects.filter(user_id = userId)
-    item = Items.objects.filter(user_id = request.session['id'])
-    # print("Item is : ", request.session['id'])
-    serializer = ItemsSerializer(item, many=True)
-    # print("serial is ", serializer.data)
-    return JsonResponse(serializer.data, safe=False)
-    # except Items.DoesNotExist:
-    #     pass 
 
-    # return HttpResponse(f'<p>item_detail view with id {item_id}</p>')
-    # return render(request, 'items_detail.html', {
-    #     'item': item,
-    # })
-    
+    item = Items.objects.filter(user_id = request.session['id'])
+    serializer = ItemsSerializer(item, many=True)
+    return JsonResponse(serializer.data, safe=False)
+
 
 @csrf_exempt
 def insert_newuser(request):
+    # Insert users whenever they register 
     
     dataform = request.body
     data1 = dataform.decode('utf-8')
     data = json.loads(data1)
-    # print("data is ", data)
     pwd = data['password']
-    # print("pwd is ", pwd)
-    password_hash = bcrypt.hashpw(pwd.encode(), bcrypt.gensalt()).decode()
-
+    password_hash = bcrypt.hashpw(pwd.encode(), bcrypt.gensalt()).decode() # password encryption
     
+    # Insert user
     new_user = Users.objects.create(firstName=data['firstname'], lastName=data['lastname'], email=data['email'], password=password_hash )
     
     # Store the data in the session
@@ -62,20 +51,20 @@ def insert_newuser(request):
 
     return JsonResponse({"id": new_user.id })
 
+
 @csrf_exempt 
 def check_login(request):
-    # Check whether the user exists:
+    # Check whether the users exist and if they do, validate against their password:
 
     dataform = request.body
-
     data1 = dataform.decode('utf-8')
     data = json.loads(data1)
-
     user =  Users.objects.filter(email=data['values']['email'])
 
+    # if user exists
     if user:
         logged_user = user[0]
-        
+        # validate the password
         if bcrypt.checkpw(data['values']['password'].encode(), logged_user.password.encode()):
             request.session['id'] = logged_user.id
             return JsonResponse({"message": "Success" })
@@ -84,9 +73,10 @@ def check_login(request):
     else:
         return JsonResponse({"message": "Failure" })
 
+
 @csrf_exempt 
 def check_signup(request):
-    # Check whether the user exists:
+    # Check whether the user already exists :
 
     dataform = request.body
     data1 = dataform.decode('utf-8')
@@ -99,12 +89,14 @@ def check_signup(request):
     else:
         return JsonResponse({"message": "Success" })
 
+
 @csrf_exempt 
 def insert_items(request):
+    # Insert an item
+
     dataform = request.body
     data1 = dataform.decode('utf-8')
     data = json.loads(data1)
-    # print("data is : ", data)
 
     if 'id' not in request.session:
         return JsonResponse({"message": "failure" })
@@ -122,13 +114,13 @@ def insert_items(request):
         'user_id':returndata[0]['user_id']
 
     }
-    print("total is : ", currentitem)
     return JsonResponse(currentitem)
 
 
 @csrf_exempt 
 def fetch_users(request):
     # Returns Json list of all users
+
     try:
         user = Users.objects.all()
         serializer = UsersSerializer(user, many=True)
@@ -139,35 +131,39 @@ def fetch_users(request):
     value = JsonResponse(serializer.data, safe=False)
     return JsonResponse(serializer.data, safe=False)
 
+
 @csrf_exempt 
 def fetch_user(request):
     # Returns Json of current user
+
     if 'id' not in request.session:
         return JsonResponse({"message": "failure" })
-        # item = Items.objects.filter(user_id = userId)
     user = Users.objects.filter(id = request.session['id'])
-    # print("Item is : ", request.session['id'])
     serializer = UsersSerializer(user, many=True)
-    # print("serial is ", serializer.data)
     return JsonResponse(serializer.data, safe=False)
 
 
 @csrf_exempt 
 def logout(request):
+    # handle logout
+
     request.session.flush()
     return JsonResponse({"message": "Logged Out successfully" })
 
 
 @csrf_exempt 
 def check_expiryDate(request):
+    # Find out which items are due the next day
+
     if 'id' not in request.session:
         return JsonResponse({"message": "failure" })
     item = Items.objects.filter(user_id = request.session['id'])
 
     serializer = ItemsSerializer(item, many=True)
-    # print("serial data : ",serializer.data)
     data = serializer.data
     due_items = []
+
+    # Calculating the day dfference
     for i in range(len(data)):
 
         expirydate = data[i]['expirationDate']
@@ -180,46 +176,42 @@ def check_expiryDate(request):
         expiry_month = expirydate[0:2]
         expiry_day = expirydate[3:5]
 
-        # formatDate = datetime.strptime(todayDate, '%m/%d/%Y')
-        # print("formatDate : ", formatDate)
         d1 = date(int(expiry_year), int(expiry_month),int(expiry_day)) # expirydate
         d2 = date(int(today_year), int(today_month),int(today_day)) # today's date
-        
+        print("d1 is : ", d1)
+        print("d2 is : ", d2)
         no_days = abs(d1-d2).days
+        print("no fo days is ", no_days)
 
         if no_days == 1:
-            # print("item(s) are : ",data[i]['name'])
+            # console.log("item is : ", data[i]['name'])
             due_items.append(data[i]['name'])
 
-
-
+    print(JsonResponse({"itemsDue": due_items }))
     return JsonResponse({"itemsDue": due_items })
 
-# MyModel.objects.filter(pk=1).delete()
 
 @csrf_exempt 
 def remove_Item(request):
+    # Remove an item from the list
+
     if 'id' not in request.session:
         return JsonResponse({"message": "failure" })
     
     dataform = request.body
     data1 = dataform.decode('utf-8')
     data = json.loads(data1)
-    # print("data is ", data)
     
     Items.objects.filter(user_id = request.session['id'], id= data['itemid']).delete()
     return JsonResponse({"message": "success" })
 
 @csrf_exempt 
 def delete_account(request):
+    # handles deletion of user and the related data
+    
     if 'id' not in request.session:
         return JsonResponse({"message": "failure" })
     
-    
-    # dataform = request.body
-    # data1 = dataform.decode('utf-8')
-    # data = json.loads(data1)
-    # print(request.session['id'])
     Users.objects.filter(id = request.session['id']).delete()
     for item in Items.objects.filter(user_id = request.session['id']):
         item.delete()

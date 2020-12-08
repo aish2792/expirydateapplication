@@ -1,13 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-
-// import * as Sentry from '@sentry/react-native';
-
 export const usersSlice = createSlice({
     name: 'users',
     initialState: {
         id: null,
-        isLoggedIn: false,
         myProfile: {},
         myItems: [],
         users: [],
@@ -61,97 +57,96 @@ export const {
 export default usersSlice.reducer
 
 
-
+// update the ID of the user
 export const updateID = (userId) => async (
     dispatch,
     getState,
   ) => {
       try{
-
         const user_id = userId['id']
         dispatch(setLoading(true));
         dispatch(setId(user_id))
       }catch (error) {
-		// Sentry.withScope(function (scope) {
-		// 	scope.setTag("page.file", "usersSlice");
-		// 	scope.setTag("page.function", "signup");
-		// 	scope.setLevel("warning");
-        // 	Sentry.captureException(new Error(error));
-        console.log("Error in usersSlice.js -> signup(): ", error);
-		
-		
-			console.log("Error in usersSlice.js -> signup(): ", error);
-		
-		dispatch(setError(error.message)) // Auth Error
+        console.log("Error in usersSlice.js -> updateID(): ", error.message);	
+		dispatch(setError(error.message)) // update error in the state
 	} finally {
 		dispatch(setLoading(false))
-
-	}
-      
+	}  
       
   };
 
-export const updateCredentials = (cred) => async (
-    dispatch,
-    getState,
-    ) => {
-
-        console.log({cred})
-
-    };
-
+// update myProfile in the state that includes current user's id, firstname, lastname, email 
 export const updateMyProfile = (cred) => (
     dispatch,
     getState,
     ) => {
 
-        const {id, firstName, lastName, email, password} = cred
-        const profile = {
-            'firstname': firstName,
-            'lastname': lastName,
-            'email': email,
-        }
+        try{
 
-        dispatch(setMyProfile(profile)) //updates the state wwith the current user's profile
+            const {id, firstName, lastName, email, password} = cred
+            const profile = {
+                'firstname': firstName,
+                'lastname': lastName,
+                'email': email,
+            }
+
+        dispatch(setMyProfile(profile)) //updates the state with the current user's profile
+
+        }catch (error) {
+            console.log("Error in usersSlice.js -> updateMyProfile(): ", error.message);	
+            dispatch(setError(error.message)) // update error in the state
+        } finally {
+            console.log("checked -- updateMyProfile()")
+        }  
+        
   
     };
 
+// update all the users in the state 
 export const fetchUsers = (users) => async (
     dispatch,
     getState,
     ) => {
-
-            let userslist = users
+        try {
             dispatch(setUsers(users))
+        } catch (error) {
+            console.log("Error in usersSlice.js -> fetchUsers(): ", error.message);	
+            dispatch(setError(error.message)) // update error in the state
+        }
             
-
         
     };
 
+// update myItems in the state   
 export const updateMyItemsList = (items) => async (
     dispatch,
     getState,
     ) => {
-
+        try{
             dispatch(setMyItems(items))
-            
-
-        
+        } catch (error) {
+            console.log("Error in usersSlice.js -> updateMyItemsList(): ", error.message);	
+            dispatch(setError(error.message)) // update error in the state
+        }
+  
     };
 
+
+// When the users add items, they are updated in the myItems variable in the state
 export const updateExistingMyItemsList = (items) => async (
     dispatch,
     getState,
     ) => {
-
-            console.log("update")
+        try{
             dispatch(updateMyItems(items))
-            
-
-        
+        }catch (error) {
+            console.log("Error in usersSlice.js -> updateExistingMyItemsList(): ", error.message);	
+            dispatch(setError(error.message)) // update error in the state
+        }
+               
     };
 
-
+// sets all the variables in the state to their initial values
 export const logout = () => dispatch => {
     try {
 
@@ -161,17 +156,20 @@ export const logout = () => dispatch => {
         dispatch(setError(null))
     }
     catch (error) {
-        console.log(error.message)
-
+        console.log("Error in usersSlice.js -> updateExistingMyItemsList(): ", error.message);	
+        dispatch(setError(error.message)) // update error in the state
     }
 };
 
-
+// removes item from the list after users delete any item
 export const removeItem = (itemid) => dispatch => {
-
-
-    // console.log({itemid})
-    dispatch(removeFromMyItems(itemid))
+    try {
+        dispatch(removeFromMyItems(itemid)) 
+    }catch (error) {
+        console.log("Error in usersSlice.js -> removeItem(): ", error.message);	
+        dispatch(setError(error.message)) // update error in the state
+    }
+    
 }
     
 
